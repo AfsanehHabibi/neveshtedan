@@ -11,9 +11,9 @@ import (
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
 )
 
-// CreateEntry is the resolver for the createEntry field.
-func (r *mutationResolver) CreateEntry(ctx context.Context, input *model.NewEntry) (*model.Entry, error) {
-	panic(fmt.Errorf("not implemented: CreateEntry - createEntry"))
+// CreateWritingEntry is the resolver for the createWritingEntry field.
+func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error) {
+	panic(fmt.Errorf("not implemented: CreateWritingEntry - createWritingEntry"))
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -31,9 +31,21 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
 }
 
-// Enteries is the resolver for the enteries field.
-func (r *queryResolver) Enteries(ctx context.Context) ([]*model.Entry, error) {
-	panic(fmt.Errorf("not implemented: Enteries - enteries"))
+// Entries is the resolver for the entries field.
+func (r *queryResolver) Entries(ctx context.Context) ([]*model.WritingEntry, error) {
+	panic(fmt.Errorf("not implemented: Entries - entries"))
+}
+
+// Templates is the resolver for the templates field.
+func (r *queryResolver) Templates(ctx context.Context) ([]*model.WritingTemplate, error) {
+	var links []*model.WritingTemplate
+	dummyLink := model.WritingTemplate{
+		Title:  "Basic",
+		ID:     1234,
+		Fields: []string{"apple", "banana", "orange"},
+	}
+	links = append(links, &dummyLink)
+	return links, nil
 }
 
 // Mutation returns MutationResolver implementation.

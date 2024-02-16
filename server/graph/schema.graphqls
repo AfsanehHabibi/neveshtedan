@@ -2,23 +2,32 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Entry {
-  template: String!
-  fields: [EntryField]!
+type WritingTemplate {
+  title: String!
+  id: Int!
+  fields: [String!]!
 }
 
-type EntryField {
-  name: String
-  value: String!
+type WritingEntry {
+  id: Int!
+  userId: Int!
+  templateId: Int!
+  fields: [WritingEntryField!]!
+}
+
+type WritingEntryField {
+  name: String!
+  value: String
 }
 
 type User {
-  id: ID!
+  id: Int!
   username: String!
 }
 
 type Query {
-  enteries: [Entry!]!
+  entries: [WritingEntry!]!
+  templates: [WritingTemplate!]!
 }
 
 input NewUser {
@@ -35,19 +44,19 @@ input RefreshTokenInput{
   token: String!
 }
 
-input NewEntry {
-  userId: ID
-  fields: [NewEntryField]!
-  template: String
+input NewWritingEntry {
+  userId: Int!
+  fields: [NewWritingEntryField!]!
+  templateId: Int!
 }
 
-input NewEntryField {
-  name: String
-  value: String!
+input NewWritingEntryField {
+  name: String!
+  value: String
 }
 
 type Mutation {
-  createEntry(input: NewEntry): Entry
+  createWritingEntry(input: NewWritingEntry!): WritingEntry!
   createUser(input: NewUser!): String!
   login(input: Login!): String!
   # we'll talk about this in authentication section

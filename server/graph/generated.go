@@ -47,41 +47,51 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Entry struct {
-		Fields   func(childComplexity int) int
-		Template func(childComplexity int) int
-	}
-
-	EntryField struct {
-		Name  func(childComplexity int) int
-		Value func(childComplexity int) int
-	}
-
 	Mutation struct {
-		CreateEntry  func(childComplexity int, input *model.NewEntry) int
-		CreateUser   func(childComplexity int, input model.NewUser) int
-		Login        func(childComplexity int, input model.Login) int
-		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
+		CreateUser         func(childComplexity int, input model.NewUser) int
+		CreateWritingEntry func(childComplexity int, input model.NewWritingEntry) int
+		Login              func(childComplexity int, input model.Login) int
+		RefreshToken       func(childComplexity int, input model.RefreshTokenInput) int
 	}
 
 	Query struct {
-		Enteries func(childComplexity int) int
+		Entries   func(childComplexity int) int
+		Templates func(childComplexity int) int
 	}
 
 	User struct {
 		ID       func(childComplexity int) int
 		Username func(childComplexity int) int
 	}
+
+	WritingEntry struct {
+		Fields     func(childComplexity int) int
+		ID         func(childComplexity int) int
+		TemplateID func(childComplexity int) int
+		UserID     func(childComplexity int) int
+	}
+
+	WritingEntryField struct {
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
+	}
+
+	WritingTemplate struct {
+		Fields func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Title  func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
-	CreateEntry(ctx context.Context, input *model.NewEntry) (*model.Entry, error)
+	CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error)
 	CreateUser(ctx context.Context, input model.NewUser) (string, error)
 	Login(ctx context.Context, input model.Login) (string, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
 }
 type QueryResolver interface {
-	Enteries(ctx context.Context) ([]*model.Entry, error)
+	Entries(ctx context.Context) ([]*model.WritingEntry, error)
+	Templates(ctx context.Context) ([]*model.WritingTemplate, error)
 }
 
 type executableSchema struct {
@@ -103,46 +113,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Entry.fields":
-		if e.complexity.Entry.Fields == nil {
-			break
-		}
-
-		return e.complexity.Entry.Fields(childComplexity), true
-
-	case "Entry.template":
-		if e.complexity.Entry.Template == nil {
-			break
-		}
-
-		return e.complexity.Entry.Template(childComplexity), true
-
-	case "EntryField.name":
-		if e.complexity.EntryField.Name == nil {
-			break
-		}
-
-		return e.complexity.EntryField.Name(childComplexity), true
-
-	case "EntryField.value":
-		if e.complexity.EntryField.Value == nil {
-			break
-		}
-
-		return e.complexity.EntryField.Value(childComplexity), true
-
-	case "Mutation.createEntry":
-		if e.complexity.Mutation.CreateEntry == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createEntry_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateEntry(childComplexity, args["input"].(*model.NewEntry)), true
-
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
 			break
@@ -154,6 +124,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.NewUser)), true
+
+	case "Mutation.createWritingEntry":
+		if e.complexity.Mutation.CreateWritingEntry == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createWritingEntry_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateWritingEntry(childComplexity, args["input"].(model.NewWritingEntry)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -179,12 +161,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
 
-	case "Query.enteries":
-		if e.complexity.Query.Enteries == nil {
+	case "Query.entries":
+		if e.complexity.Query.Entries == nil {
 			break
 		}
 
-		return e.complexity.Query.Enteries(childComplexity), true
+		return e.complexity.Query.Entries(childComplexity), true
+
+	case "Query.templates":
+		if e.complexity.Query.Templates == nil {
+			break
+		}
+
+		return e.complexity.Query.Templates(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -200,6 +189,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Username(childComplexity), true
 
+	case "WritingEntry.fields":
+		if e.complexity.WritingEntry.Fields == nil {
+			break
+		}
+
+		return e.complexity.WritingEntry.Fields(childComplexity), true
+
+	case "WritingEntry.id":
+		if e.complexity.WritingEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.WritingEntry.ID(childComplexity), true
+
+	case "WritingEntry.templateId":
+		if e.complexity.WritingEntry.TemplateID == nil {
+			break
+		}
+
+		return e.complexity.WritingEntry.TemplateID(childComplexity), true
+
+	case "WritingEntry.userId":
+		if e.complexity.WritingEntry.UserID == nil {
+			break
+		}
+
+		return e.complexity.WritingEntry.UserID(childComplexity), true
+
+	case "WritingEntryField.name":
+		if e.complexity.WritingEntryField.Name == nil {
+			break
+		}
+
+		return e.complexity.WritingEntryField.Name(childComplexity), true
+
+	case "WritingEntryField.value":
+		if e.complexity.WritingEntryField.Value == nil {
+			break
+		}
+
+		return e.complexity.WritingEntryField.Value(childComplexity), true
+
+	case "WritingTemplate.fields":
+		if e.complexity.WritingTemplate.Fields == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplate.Fields(childComplexity), true
+
+	case "WritingTemplate.id":
+		if e.complexity.WritingTemplate.ID == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplate.ID(childComplexity), true
+
+	case "WritingTemplate.title":
+		if e.complexity.WritingTemplate.Title == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplate.Title(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -209,9 +261,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLogin,
-		ec.unmarshalInputNewEntry,
-		ec.unmarshalInputNewEntryField,
 		ec.unmarshalInputNewUser,
+		ec.unmarshalInputNewWritingEntry,
+		ec.unmarshalInputNewWritingEntryField,
 		ec.unmarshalInputRefreshTokenInput,
 	)
 	first := true
@@ -329,13 +381,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createEntry_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.NewEntry
+	var arg0 model.NewUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalONewEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewEntry(ctx, tmp)
+		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -344,13 +396,13 @@ func (ec *executionContext) field_Mutation_createEntry_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createWritingEntry_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewUser
+	var arg0 model.NewWritingEntry
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewUser(ctx, tmp)
+		arg0, err = ec.unmarshalNNewWritingEntry2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntry(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -442,8 +494,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Entry_template(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Entry_template(ctx, field)
+func (ec *executionContext) _Mutation_createWritingEntry(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createWritingEntry(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -456,7 +508,7 @@ func (ec *executionContext) _Entry_template(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Template, nil
+		return ec.resolvers.Mutation().CreateWritingEntry(rctx, fc.Args["input"].(model.NewWritingEntry))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -468,188 +520,12 @@ func (ec *executionContext) _Entry_template(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*model.WritingEntry)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNWritingEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntry(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Entry_template(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Entry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Entry_fields(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Entry_fields(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Fields, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.EntryField)
-	fc.Result = res
-	return ec.marshalNEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntryField(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Entry_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Entry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_EntryField_name(ctx, field)
-			case "value":
-				return ec.fieldContext_EntryField_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type EntryField", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _EntryField_name(ctx context.Context, field graphql.CollectedField, obj *model.EntryField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EntryField_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_EntryField_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EntryField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _EntryField_value(ctx context.Context, field graphql.CollectedField, obj *model.EntryField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EntryField_value(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_EntryField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EntryField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_createEntry(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createEntry(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateEntry(rctx, fc.Args["input"].(*model.NewEntry))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Entry)
-	fc.Result = res
-	return ec.marshalOEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntry(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createEntry(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createWritingEntry(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -657,12 +533,16 @@ func (ec *executionContext) fieldContext_Mutation_createEntry(ctx context.Contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "template":
-				return ec.fieldContext_Entry_template(ctx, field)
+			case "id":
+				return ec.fieldContext_WritingEntry_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_WritingEntry_userId(ctx, field)
+			case "templateId":
+				return ec.fieldContext_WritingEntry_templateId(ctx, field)
 			case "fields":
-				return ec.fieldContext_Entry_fields(ctx, field)
+				return ec.fieldContext_WritingEntry_fields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Entry", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type WritingEntry", field.Name)
 		},
 	}
 	defer func() {
@@ -672,7 +552,7 @@ func (ec *executionContext) fieldContext_Mutation_createEntry(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createEntry_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createWritingEntry_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -844,8 +724,8 @@ func (ec *executionContext) fieldContext_Mutation_refreshToken(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_enteries(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_enteries(ctx, field)
+func (ec *executionContext) _Query_entries(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_entries(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -858,7 +738,7 @@ func (ec *executionContext) _Query_enteries(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Enteries(rctx)
+		return ec.resolvers.Query().Entries(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -870,12 +750,12 @@ func (ec *executionContext) _Query_enteries(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Entry)
+	res := resTmp.([]*model.WritingEntry)
 	fc.Result = res
-	return ec.marshalNEntry2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntryᚄ(ctx, field.Selections, res)
+	return ec.marshalNWritingEntry2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_enteries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -883,12 +763,68 @@ func (ec *executionContext) fieldContext_Query_enteries(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "template":
-				return ec.fieldContext_Entry_template(ctx, field)
+			case "id":
+				return ec.fieldContext_WritingEntry_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_WritingEntry_userId(ctx, field)
+			case "templateId":
+				return ec.fieldContext_WritingEntry_templateId(ctx, field)
 			case "fields":
-				return ec.fieldContext_Entry_fields(ctx, field)
+				return ec.fieldContext_WritingEntry_fields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Entry", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type WritingEntry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_templates(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_templates(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Templates(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.WritingTemplate)
+	fc.Result = res
+	return ec.marshalNWritingTemplate2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplateᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_templates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "title":
+				return ec.fieldContext_WritingTemplate_title(ctx, field)
+			case "id":
+				return ec.fieldContext_WritingTemplate_id(ctx, field)
+			case "fields":
+				return ec.fieldContext_WritingTemplate_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WritingTemplate", field.Name)
 		},
 	}
 	return fc, nil
@@ -1049,9 +985,9 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1061,7 +997,7 @@ func (ec *executionContext) fieldContext_User_id(ctx context.Context, field grap
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1101,6 +1037,405 @@ func (ec *executionContext) _User_username(ctx context.Context, field graphql.Co
 func (ec *executionContext) fieldContext_User_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingEntry_id(ctx context.Context, field graphql.CollectedField, obj *model.WritingEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingEntry_userId(ctx context.Context, field graphql.CollectedField, obj *model.WritingEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingEntry_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingEntry_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingEntry_templateId(ctx context.Context, field graphql.CollectedField, obj *model.WritingEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingEntry_templateId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TemplateID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingEntry_templateId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingEntry_fields(ctx context.Context, field graphql.CollectedField, obj *model.WritingEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingEntry_fields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.WritingEntryField)
+	fc.Result = res
+	return ec.marshalNWritingEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntryFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingEntry_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_WritingEntryField_name(ctx, field)
+			case "value":
+				return ec.fieldContext_WritingEntryField_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WritingEntryField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingEntryField_name(ctx context.Context, field graphql.CollectedField, obj *model.WritingEntryField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingEntryField_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingEntryField_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingEntryField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingEntryField_value(ctx context.Context, field graphql.CollectedField, obj *model.WritingEntryField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingEntryField_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingEntryField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingEntryField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplate_title(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplate_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplate_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplate_id(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplate_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplate_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplate_fields(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplate_fields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplate_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplate",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2918,81 +3253,6 @@ func (ec *executionContext) unmarshalInputLogin(ctx context.Context, obj interfa
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewEntry(ctx context.Context, obj interface{}) (model.NewEntry, error) {
-	var it model.NewEntry
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userId", "fields", "template"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
-		case "fields":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
-			data, err := ec.unmarshalNNewEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewEntryField(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Fields = data
-		case "template":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("template"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Template = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputNewEntryField(ctx context.Context, obj interface{}) (model.NewEntryField, error) {
-	var it model.NewEntryField
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"name", "value"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "value":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Value = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (model.NewUser, error) {
 	var it model.NewUser
 	asMap := map[string]interface{}{}
@@ -3021,6 +3281,81 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 				return it, err
 			}
 			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewWritingEntry(ctx context.Context, obj interface{}) (model.NewWritingEntry, error) {
+	var it model.NewWritingEntry
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId", "fields", "templateId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		case "fields":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
+			data, err := ec.unmarshalNNewWritingEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntryFieldᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fields = data
+		case "templateId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("templateId"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TemplateID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewWritingEntryField(ctx context.Context, obj interface{}) (model.NewWritingEntryField, error) {
+	var it model.NewWritingEntryField
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
 		}
 	}
 
@@ -3062,91 +3397,6 @@ func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context,
 
 // region    **************************** object.gotpl ****************************
 
-var entryImplementors = []string{"Entry"}
-
-func (ec *executionContext) _Entry(ctx context.Context, sel ast.SelectionSet, obj *model.Entry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, entryImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Entry")
-		case "template":
-			out.Values[i] = ec._Entry_template(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "fields":
-			out.Values[i] = ec._Entry_fields(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var entryFieldImplementors = []string{"EntryField"}
-
-func (ec *executionContext) _EntryField(ctx context.Context, sel ast.SelectionSet, obj *model.EntryField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, entryFieldImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("EntryField")
-		case "name":
-			out.Values[i] = ec._EntryField_name(ctx, field, obj)
-		case "value":
-			out.Values[i] = ec._EntryField_value(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3166,10 +3416,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createEntry":
+		case "createWritingEntry":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createEntry(ctx, field)
+				return ec._Mutation_createWritingEntry(ctx, field)
 			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
@@ -3233,7 +3486,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "enteries":
+		case "entries":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3242,7 +3495,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_enteries(ctx, field)
+				res = ec._Query_entries(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "templates":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_templates(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3304,6 +3579,150 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "username":
 			out.Values[i] = ec._User_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var writingEntryImplementors = []string{"WritingEntry"}
+
+func (ec *executionContext) _WritingEntry(ctx context.Context, sel ast.SelectionSet, obj *model.WritingEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, writingEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WritingEntry")
+		case "id":
+			out.Values[i] = ec._WritingEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userId":
+			out.Values[i] = ec._WritingEntry_userId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "templateId":
+			out.Values[i] = ec._WritingEntry_templateId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fields":
+			out.Values[i] = ec._WritingEntry_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var writingEntryFieldImplementors = []string{"WritingEntryField"}
+
+func (ec *executionContext) _WritingEntryField(ctx context.Context, sel ast.SelectionSet, obj *model.WritingEntryField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, writingEntryFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WritingEntryField")
+		case "name":
+			out.Values[i] = ec._WritingEntryField_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._WritingEntryField_value(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var writingTemplateImplementors = []string{"WritingTemplate"}
+
+func (ec *executionContext) _WritingTemplate(ctx context.Context, sel ast.SelectionSet, obj *model.WritingTemplate) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, writingTemplateImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WritingTemplate")
+		case "title":
+			out.Values[i] = ec._WritingTemplate_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "id":
+			out.Values[i] = ec._WritingTemplate_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fields":
+			out.Values[i] = ec._WritingTemplate_fields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3671,105 +4090,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNEntry2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Entry) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntry(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v *model.Entry) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Entry(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntryField(ctx context.Context, sel ast.SelectionSet, v []*model.EntryField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntryField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3783,16 +4110,26 @@ func (ec *executionContext) unmarshalNLogin2githubᚗcomᚋAfsanehHabibiᚋneves
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewEntryField(ctx context.Context, v interface{}) ([]*model.NewEntryField, error) {
+func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
+	res, err := ec.unmarshalInputNewUser(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewWritingEntry2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntry(ctx context.Context, v interface{}) (model.NewWritingEntry, error) {
+	res, err := ec.unmarshalInputNewWritingEntry(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewWritingEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntryFieldᚄ(ctx context.Context, v interface{}) ([]*model.NewWritingEntryField, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.NewEntryField, len(vSlice))
+	res := make([]*model.NewWritingEntryField, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalONewEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewEntryField(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNNewWritingEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntryField(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -3800,9 +4137,9 @@ func (ec *executionContext) unmarshalNNewEntryField2ᚕᚖgithubᚗcomᚋAfsaneh
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
-	res, err := ec.unmarshalInputNewUser(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNNewWritingEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntryField(ctx context.Context, v interface{}) (*model.NewWritingEntryField, error) {
+	res, err := ec.unmarshalInputNewWritingEntryField(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐRefreshTokenInput(ctx context.Context, v interface{}) (model.RefreshTokenInput, error) {
@@ -3823,6 +4160,204 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWritingEntry2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntry(ctx context.Context, sel ast.SelectionSet, v model.WritingEntry) graphql.Marshaler {
+	return ec._WritingEntry(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWritingEntry2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WritingEntry) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWritingEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntry(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWritingEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntry(ctx context.Context, sel ast.SelectionSet, v *model.WritingEntry) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WritingEntry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWritingEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntryFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WritingEntryField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWritingEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntryField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWritingEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntryField(ctx context.Context, sel ast.SelectionSet, v *model.WritingEntryField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WritingEntryField(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWritingTemplate2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplateᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WritingTemplate) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWritingTemplate2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplate(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWritingTemplate2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplate(ctx context.Context, sel ast.SelectionSet, v *model.WritingTemplate) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WritingTemplate(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4102,52 +4637,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v *model.Entry) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Entry(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐEntryField(ctx context.Context, sel ast.SelectionSet, v *model.EntryField) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._EntryField(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalID(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalONewEntry2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewEntry(ctx context.Context, v interface{}) (*model.NewEntry, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputNewEntry(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalONewEntryField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewEntryField(ctx context.Context, v interface{}) (*model.NewEntryField, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputNewEntryField(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

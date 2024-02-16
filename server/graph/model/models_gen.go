@@ -2,16 +2,6 @@
 
 package model
 
-type Entry struct {
-	Template string        `json:"template"`
-	Fields   []*EntryField `json:"fields"`
-}
-
-type EntryField struct {
-	Name  *string `json:"name,omitempty"`
-	Value string  `json:"value"`
-}
-
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -20,20 +10,20 @@ type Login struct {
 type Mutation struct {
 }
 
-type NewEntry struct {
-	UserID   *string          `json:"userId,omitempty"`
-	Fields   []*NewEntryField `json:"fields"`
-	Template *string          `json:"template,omitempty"`
-}
-
-type NewEntryField struct {
-	Name  *string `json:"name,omitempty"`
-	Value string  `json:"value"`
-}
-
 type NewUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type NewWritingEntry struct {
+	UserID     int                     `json:"userId"`
+	Fields     []*NewWritingEntryField `json:"fields"`
+	TemplateID int                     `json:"templateId"`
+}
+
+type NewWritingEntryField struct {
+	Name  string  `json:"name"`
+	Value *string `json:"value,omitempty"`
 }
 
 type Query struct {
@@ -44,6 +34,24 @@ type RefreshTokenInput struct {
 }
 
 type User struct {
-	ID       string `json:"id"`
+	ID       int    `json:"id"`
 	Username string `json:"username"`
+}
+
+type WritingEntry struct {
+	ID         int                  `json:"id"`
+	UserID     int                  `json:"userId"`
+	TemplateID int                  `json:"templateId"`
+	Fields     []*WritingEntryField `json:"fields"`
+}
+
+type WritingEntryField struct {
+	Name  string  `json:"name"`
+	Value *string `json:"value,omitempty"`
+}
+
+type WritingTemplate struct {
+	Title  string   `json:"title"`
+	ID     int      `json:"id"`
+	Fields []string `json:"fields"`
 }
