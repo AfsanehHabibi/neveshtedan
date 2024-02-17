@@ -1,34 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState,useEffect } from 'react';
 import './App.css'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { Link } from 'react-router-dom';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [data, setData] = useState<any>()
+  const client = new ApolloClient({
+    uri: 'http://localhost:8080/query',
+    cache: new InMemoryCache(),
+  });
+  useEffect(()=>{
+    client
+    .query({
+  
+      query: gql`
+  
+        query GetLocations {
+  
+          enteries {
+    fields {
+      value
+      name
+    }
+  }
+  
+        }
+  
+      `,
+  
+    })
+  
+    .then((result) => setData(result.data.enteries)).catch((err)=> console.log(err));
+  })
 
+  
+console.log(data)
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <><div>{data?.map((post: any, index: number) => (
+      <div key={index}>
+        {post && post.fields.map((field: any) => (<div>{field.name}</div>))}
+      </div>))}
+    </div><div>
+        <h1>Main Page</h1>
+        <Link to="/new-page/1234">Go to New Page</Link>
+      </div></>
   )
 }
 
