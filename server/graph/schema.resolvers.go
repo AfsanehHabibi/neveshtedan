@@ -9,11 +9,26 @@ import (
 	"fmt"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
+	"github.com/AfsanehHabibi/neveshtedan/pkg/util"
 )
 
 // CreateWritingEntry is the resolver for the createWritingEntry field.
 func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error) {
-	panic(fmt.Errorf("not implemented: CreateWritingEntry - createWritingEntry"))
+	id, err := r.Resolver.WERepo.Add(input)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := util.RemoveNilElements[model.NewWritingEntryField](input.Fields)
+	err = r.Resolver.WFRepo.AddAll(id, fields)
+	if err != nil {
+		return nil, err
+	}
+	oFields := make([]*model.WritingEntryField, 0, len(fields))
+	for _, v := range fields {
+		oFields = append(oFields, model.ConvertNewToWritingEntryField(v))
+	}
+	return &model.WritingEntry{ID: id, UserID: input.UserID, TemplateID: input.TemplateID, Fields: oFields}, nil
 }
 
 // CreateUser is the resolver for the createUser field.
