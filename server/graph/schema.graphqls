@@ -28,6 +28,7 @@ type User {
 type Query {
   entries: [WritingEntry!]!
   templates: [WritingTemplate!]!
+  writingTemplate(id: Int!): WritingTemplate
 }
 
 input NewUser {

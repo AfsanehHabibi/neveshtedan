@@ -63,6 +63,18 @@ func (r *queryResolver) Templates(ctx context.Context) ([]*model.WritingTemplate
 	return links, nil
 }
 
+// WritingTemplate is the resolver for the writingTemplate field.
+func (r *queryResolver) WritingTemplate(ctx context.Context, id int) (*model.WritingTemplate, error) {
+	if id == 1234 {
+		return &model.WritingTemplate{
+			Title:  "Basic",
+			ID:     1234,
+			Fields: []string{"apple", "banana", "orange"},
+		}, nil
+	}
+	return nil, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
