@@ -53,14 +53,20 @@ func (r *queryResolver) Entries(ctx context.Context) ([]*model.WritingEntry, err
 
 // Templates is the resolver for the templates field.
 func (r *queryResolver) Templates(ctx context.Context) ([]*model.WritingTemplate, error) {
-	var links []*model.WritingTemplate
-	dummyLink := model.WritingTemplate{
+	var templates []*model.WritingTemplate
+	template1 := model.WritingTemplate{
 		Title:  "Basic",
 		ID:     1234,
-		Fields: []string{"apple", "banana", "orange"},
+		Fields: []string{"name", "favorite food", "reason"},
 	}
-	links = append(links, &dummyLink)
-	return links, nil
+	templates = append(templates, &template1)
+	template2 := model.WritingTemplate{
+		Title:  "Odd",
+		ID:     125,
+		Fields: []string{"name", "penname", "pen story"},
+	}
+	templates = append(templates, &template2)
+	return templates, nil
 }
 
 // WritingTemplate is the resolver for the writingTemplate field.
@@ -69,7 +75,14 @@ func (r *queryResolver) WritingTemplate(ctx context.Context, id int) (*model.Wri
 		return &model.WritingTemplate{
 			Title:  "Basic",
 			ID:     1234,
-			Fields: []string{"apple", "banana", "orange"},
+			Fields: []string{"name", "favorite food", "reason"},
+		}, nil
+	}
+	if id == 125 {
+		return &model.WritingTemplate{
+			Title:  "Odd",
+			ID:     125,
+			Fields: []string{"name", "penname", "pen story"},
 		}, nil
 	}
 	return nil, nil
