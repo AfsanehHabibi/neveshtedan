@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"context"
 	"sync"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
@@ -19,7 +20,7 @@ func NewInMemoryWritingEntryFieldRepository() repository.WritingEntryFieldReposi
 	}
 }
 
-func (repo *InMemoryWritingEntryFieldRepository) Add(entryId int, field model.NewWritingEntryField) error {
+func (repo *InMemoryWritingEntryFieldRepository) Add(ignored context.Context, entryId int, field model.NewWritingEntryField) error {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
@@ -30,7 +31,7 @@ func (repo *InMemoryWritingEntryFieldRepository) Add(entryId int, field model.Ne
 	return nil
 }
 
-func (repo *InMemoryWritingEntryFieldRepository) AddAll(entryId int, fields []model.NewWritingEntryField) error {
+func (repo *InMemoryWritingEntryFieldRepository) AddAll(ignored context.Context, entryId int, fields []model.NewWritingEntryField) error {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
@@ -43,7 +44,7 @@ func (repo *InMemoryWritingEntryFieldRepository) AddAll(entryId int, fields []mo
 	return nil
 }
 
-func (repo *InMemoryWritingEntryFieldRepository) GetAll(id int) ([]model.WritingEntryField, error) {
+func (repo *InMemoryWritingEntryFieldRepository) GetAll(ignored context.Context, id int) ([]model.WritingEntryField, error) {
 	repo.mu.RLock()
 	defer repo.mu.RUnlock()
 
@@ -53,6 +54,14 @@ func (repo *InMemoryWritingEntryFieldRepository) GetAll(id int) ([]model.Writing
 		converted = append(converted, repositoryEntryFieldToGraph(field))
 	}
 	return converted, nil
+}
+
+func (repo *InMemoryWritingEntryFieldRepository) Clear(ctx context.Context) error {
+	repo.mu.RLock()
+	defer repo.mu.RUnlock()
+
+	repo.fields = make(map[int][]rModel.WritingEntryField)
+	return nil
 }
 
 func repositoryEntryFieldToGraph(input rModel.WritingEntryField) model.WritingEntryField {

@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"context"
 	"sync"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
@@ -22,7 +23,7 @@ func NewInMemoryWritingEntryRepository() repository.WritingEntryRepository {
 	}
 }
 
-func (repo *InMemoryWritingRepository) Add(entry model.NewWritingEntry) (int, error) {
+func (repo *InMemoryWritingRepository) Add(ignored context.Context, entry model.NewWritingEntry) (int, error) {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
@@ -41,7 +42,7 @@ func (repo *InMemoryWritingRepository) NewId() int {
 	return repo.idCounter - 1
 }
 
-func (repo *InMemoryWritingRepository) GetAll() ([]model.WritingEntry, error) {
+func (repo *InMemoryWritingRepository) GetAll(ignored context.Context) ([]model.WritingEntry, error) {
 	repo.mu.RLock()
 	defer repo.mu.RUnlock()
 
@@ -52,7 +53,7 @@ func (repo *InMemoryWritingRepository) GetAll() ([]model.WritingEntry, error) {
 	return entries, nil
 }
 
-func (repo *InMemoryWritingRepository) GetById(id int) (*model.WritingEntry, error) {
+func (repo *InMemoryWritingRepository) GetById(ignored context.Context, id int) (*model.WritingEntry, error) {
 	repo.mu.RLock()
 	defer repo.mu.RUnlock()
 
@@ -60,4 +61,12 @@ func (repo *InMemoryWritingRepository) GetById(id int) (*model.WritingEntry, err
 		return &model.WritingEntry{ID: value.Id, TemplateID: value.TemplateId, UserID: value.UserId}, nil
 	}
 	return nil, nil
+}
+
+func (repo *InMemoryWritingRepository) Clear(ctx context.Context) error {
+	repo.mu.RLock()
+	defer repo.mu.RUnlock()
+
+	repo.entries = make(map[int]rModel.WritingEntry)
+	return nil
 }

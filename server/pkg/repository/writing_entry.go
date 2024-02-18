@@ -1,9 +1,14 @@
 package repository
 
-import "github.com/AfsanehHabibi/neveshtedan/graph/model"
+import (
+	"context"
+
+	"github.com/AfsanehHabibi/neveshtedan/graph/model"
+)
 
 type WritingEntryRepository interface {
-	Add(entry model.NewWritingEntry) (int, error)
-	GetById(id int) (*model.WritingEntry, error)
-	GetAll() ([]model.WritingEntry, error)
+	Add(ctx context.Context, entry model.NewWritingEntry) (int, error)
+	GetById(ctx context.Context, id int) (*model.WritingEntry, error)
+	GetAll(ctx context.Context) ([]model.WritingEntry, error)
+	Clear(ctx context.Context) error
 }

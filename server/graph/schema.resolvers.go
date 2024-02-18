@@ -14,13 +14,13 @@ import (
 
 // CreateWritingEntry is the resolver for the createWritingEntry field.
 func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error) {
-	id, err := r.Resolver.WERepo.Add(input)
+	id, err := r.Resolver.WERepo.Add(context.Background(), input)
 	if err != nil {
 		return nil, err
 	}
 
 	fields := util.RemoveNilElements[model.NewWritingEntryField](input.Fields)
-	err = r.Resolver.WFRepo.AddAll(id, fields)
+	err = r.Resolver.WFRepo.AddAll(context.Background(), id, fields)
 	if err != nil {
 		return nil, err
 	}
