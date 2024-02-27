@@ -13,12 +13,15 @@ type PostgresWritingEntryRepository struct {
 	con *pgxpool.Pool
 }
 
-// Clear implements repository.WritingEntryRepository.
-func (*PostgresWritingEntryRepository) Clear(ctx context.Context) error {
-	panic("unimplemented")
+func NewPostgresWritingEntryRepository(con *pgxpool.Pool) repository.WritingEntryRepository {
+	return &PostgresWritingEntryRepository{con: con}
 }
 
-// Add implements repository.WritingEntryRepository.
+func (r *PostgresWritingEntryRepository) Clear(ctx context.Context) error {
+	_, err := r.con.Exec(context.Background(), "TRUNCATE TABLE writings;")
+	return err
+}
+
 func (r *PostgresWritingEntryRepository) Add(ctx context.Context, entry model.NewWritingEntry) (int, error) {
 	query := `
 	INSERT INTO writings (template_id, user_id)
@@ -75,8 +78,4 @@ func (r *PostgresWritingEntryRepository) GetById(ctx context.Context, id int) (*
 	}
 
 	return &entry, nil
-}
-
-func NewPostgresWritingEntryRepository() repository.WritingEntryRepository {
-	return &PostgresWritingEntryRepository{}
 }
