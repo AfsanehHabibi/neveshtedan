@@ -9,7 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/AfsanehHabibi/neveshtedan/graph"
-	inmemory "github.com/AfsanehHabibi/neveshtedan/pkg/repository/in_memory"
+	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
@@ -33,8 +33,8 @@ func main() {
 		Debug:            true,
 	}).Handler)
 
-	wFRepo := inmemory.NewInMemoryWritingEntryFieldRepository()
-	wERepo := inmemory.NewInMemoryWritingEntryRepository()
+	wFRepo := postgres.NewPostgresWritingEntryFieldRepository(nil)
+	wERepo := postgres.NewPostgresWritingEntryRepository(nil)
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ WFRepo: wFRepo, WERepo: wERepo}}))
 
 	srv.AddTransport(&transport.Websocket{

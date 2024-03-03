@@ -19,7 +19,7 @@ func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.N
 		return nil, err
 	}
 
-	fields := util.RemoveNilElements[model.NewWritingEntryField](input.Fields)
+	fields := util.RemoveNilElements(input.Fields)
 	err = r.Resolver.WFRepo.AddAll(context.Background(), id, fields)
 	if err != nil {
 		return nil, err
