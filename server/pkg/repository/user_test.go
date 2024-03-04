@@ -34,4 +34,26 @@ func TestWhenAddingAUserWithDuplicateUsernameShouldReceiveError(t *testing.T) {
 
 	_, err = userRep.Add(ctx, model.NewUser{Username: "ali", Password: "kf9rghr8j"})
 	assert.Error(t, err)
+	userRep.Clear(ctx)
+}
+
+func TestWhenExistentUsernameAndPasswordIsGivenCanGetId(t *testing.T) {
+	id, err := userRep.Add(ctx, model.NewUser{Username: "ali", Password: "eo9h49g84"})
+	assert.NoError(t, err)
+
+	inputId, err := userRep.GetIdIfExists(ctx, "ali", "eo9h49g84")
+	assert.NoError(t, err)
+	assert.NotNil(t, inputId)
+	assert.Equal(t, id, *inputId)
+	userRep.Clear(ctx)
+}
+
+func TestWhenWrongPasswordIsGivenCanNotGetId(t *testing.T) {
+	_, err := userRep.Add(ctx, model.NewUser{Username: "ali", Password: "eo9h49g84"})
+	assert.NoError(t, err)
+
+	inputId, err := userRep.GetIdIfExists(ctx, "ali", "wrongpass")
+	assert.NoError(t, err)
+	assert.Nil(t, inputId)
+	userRep.Clear(ctx)
 }

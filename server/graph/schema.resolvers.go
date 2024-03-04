@@ -6,9 +6,11 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
+	"github.com/AfsanehHabibi/neveshtedan/pkg/jwt"
 	"github.com/AfsanehHabibi/neveshtedan/pkg/util"
 )
 
@@ -33,17 +35,44 @@ func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.N
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+	id, err := r.UserRepo.Add(ctx, input)
+	if err != nil {
+		return "", err
+	}
+	token, err := jwt.GenerateToken(id)
+	if err != nil{
+		return "", err
+	}
+	return token, nil
 }
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	id, err := r.UserRepo.GetIdIfExists(ctx, input.Username, input.Password)
+	if err != nil {
+		return "", err
+	}
+	if id == nil {
+		return "", errors.New("wrong password or username")
+	}
+	token, err := jwt.GenerateToken(*id)
+	if err != nil{
+		return "", err
+	}
+	return token, nil
 }
 
 // RefreshToken is the resolver for the refreshToken field.
 func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
-	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
+	id, err := jwt.ParseToken(input.Token)
+	if err != nil {
+		return "", errors.New("access denied")
+	}
+	token, err := jwt.GenerateToken(id)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 // Entries is the resolver for the entries field.

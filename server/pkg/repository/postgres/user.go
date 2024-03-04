@@ -50,6 +50,27 @@ func (r *PostgresUserRepository) GetById(ctx context.Context, id int) (*model.Us
 	return &user, nil
 }
 
+func (r *PostgresUserRepository) GetIdIfExists(ctx context.Context, username string, password string) (*int, error) {
+	query := `
+	SELECT id, password
+	FROM users
+	WHERE username = $1
+	`
+	var id int
+	var hashedPassword string
+	err := r.con.QueryRow(ctx, query, username).Scan(&id, &hashedPassword)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	if CheckPasswordHash(password, hashedPassword) {
+		return &id, nil
+	}
+	return nil, nil
+}
+
 func (r *PostgresUserRepository) Clear(ctx context.Context) error {
 	_, err := r.con.Exec(context.Background(), "TRUNCATE TABLE users;")
 	return err
