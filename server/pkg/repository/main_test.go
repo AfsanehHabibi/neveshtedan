@@ -15,15 +15,17 @@ import (
 )
 
 var (
-	ctx    = context.Background()
-	wEImp  []repository.WritingEntryRepository
-	wEFImp []repository.WritingEntryFieldRepository
+	ctx     = context.Background()
+	wEImp   []repository.WritingEntryRepository
+	wEFImp  []repository.WritingEntryFieldRepository
+	userRep repository.UserRepository
 )
 
 func TestMain(m *testing.M) {
 	con := preparePostgresForTest()
 	pWE := postgres.NewPostgresWritingEntryRepository(con)
 	pWEF := postgres.NewPostgresWritingEntryFieldRepository(con)
+	userRep = postgres.NewUserRepository(con)
 	wEFImp = append(wEFImp, inmemory.NewInMemoryWritingEntryFieldRepository(), pWEF)
 	wEImp = append(wEImp, inmemory.NewInMemoryWritingEntryRepository(), pWE)
 	m.Run()
@@ -53,11 +55,19 @@ func preparePostgresForTest() *pgxpool.Pool {
 	if err != nil {
 		log.Println("eror", err.Error())
 	}
+	_, err = postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS users;")
+	if err != nil {
+		log.Println("eror", err.Error())
+	}
 	_, err = postgres.DB().Exec(context.Background(), schema.WritingEntryTable)
 	if err != nil {
 		log.Println("erffor", err.Error())
 	}
 	_, err = postgres.DB().Exec(context.Background(), schema.WritingEntryFieldTable)
+	if err != nil {
+		log.Println("erffor", err.Error())
+	}
+	_, err = postgres.DB().Exec(context.Background(), schema.UserTable)
 	if err != nil {
 		log.Println("erffor", err.Error())
 	}
