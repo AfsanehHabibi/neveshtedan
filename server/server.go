@@ -34,9 +34,10 @@ func main() {
 		Debug:            true,
 	}).Handler)
 
-	wFRepo := postgres.NewPostgresWritingEntryFieldRepository(nil)
-	wERepo := postgres.NewPostgresWritingEntryRepository(nil)
-	userRepo := postgres.NewUserRepository(nil)
+	postgres.Setup()
+	wFRepo := postgres.NewPostgresWritingEntryFieldRepository(postgres.DB())
+	wERepo := postgres.NewPostgresWritingEntryRepository(postgres.DB())
+	userRepo := postgres.NewUserRepository(postgres.DB())
 	router.Use(auth.Middleware(userRepo))
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ WFRepo: wFRepo, WERepo: wERepo, UserRepo: userRepo}}))
 

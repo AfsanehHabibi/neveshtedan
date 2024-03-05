@@ -62,13 +62,18 @@ func ConnectToPostgresql() error {
 		log.Println("Connecting to PostgreSQL DB failed! ", err.Error())
 		return err
 	}
-	_, err = DB().Exec(context.Background(), "DROP TABLE IF EXISTS messages;")
-	if err != nil {
-		log.Println("Failed to drop PostgreSQL table! ", err.Error())
-		return err
-	}
 
 	_, err = DB().Exec(context.Background(), schema.WritingEntryTable)
+	if err != nil {
+		log.Println("Failed to create new PostgreSQL table! ", err.Error())
+		return err
+	}
+	_, err = DB().Exec(context.Background(), schema.UserTable)
+	if err != nil {
+		log.Println("Failed to create new PostgreSQL table! ", err.Error())
+		return err
+	}
+	_, err = DB().Exec(context.Background(), schema.WritingEntryFieldTable)
 	if err != nil {
 		log.Println("Failed to create new PostgreSQL table! ", err.Error())
 		return err
