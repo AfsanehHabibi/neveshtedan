@@ -22,14 +22,14 @@ func (r *PostgresWritingEntryRepository) Clear(ctx context.Context) error {
 	return err
 }
 
-func (r *PostgresWritingEntryRepository) Add(ctx context.Context, entry model.NewWritingEntry) (int, error) {
+func (r *PostgresWritingEntryRepository) Add(ctx context.Context, entry model.NewWritingEntry, userId int) (int, error) {
 	query := `
 	INSERT INTO writings (template_id, user_id)
 	VALUES ($1, $2)
 	RETURNING id
 	`
 	var id int
-	err := r.con.QueryRow(ctx, query, entry.TemplateID, entry.UserID).Scan(&id)
+	err := r.con.QueryRow(ctx, query, entry.TemplateID, userId).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

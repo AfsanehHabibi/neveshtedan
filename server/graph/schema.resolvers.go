@@ -10,13 +10,19 @@ import (
 	"fmt"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
+	"github.com/AfsanehHabibi/neveshtedan/internal/auth"
 	"github.com/AfsanehHabibi/neveshtedan/pkg/jwt"
 	"github.com/AfsanehHabibi/neveshtedan/pkg/util"
 )
 
 // CreateWritingEntry is the resolver for the createWritingEntry field.
 func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error) {
-	id, err := r.Resolver.WERepo.Add(context.Background(), input)
+	userId := auth.GetUseFromContext(ctx)
+	if userId == nil {
+		return nil, errors.New("access denied")
+	}
+
+	id, err := r.Resolver.WERepo.Add(context.Background(), input, *userId)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +36,7 @@ func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.N
 	for _, v := range fields {
 		oFields = append(oFields, model.ConvertNewToWritingEntryField(v))
 	}
-	return &model.WritingEntry{ID: id, UserID: input.UserID, TemplateID: input.TemplateID, Fields: oFields}, nil
+	return &model.WritingEntry{ID: id, UserID: *userId, TemplateID: input.TemplateID, Fields: oFields}, nil
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -40,7 +46,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		return "", err
 	}
 	token, err := jwt.GenerateToken(id)
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 	return token, nil
@@ -56,7 +62,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string
 		return "", errors.New("wrong password or username")
 	}
 	token, err := jwt.GenerateToken(*id)
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 	return token, nil

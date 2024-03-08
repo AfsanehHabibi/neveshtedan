@@ -23,12 +23,12 @@ func NewInMemoryWritingEntryRepository() repository.WritingEntryRepository {
 	}
 }
 
-func (repo *InMemoryWritingRepository) Add(ignored context.Context, entry model.NewWritingEntry) (int, error) {
+func (repo *InMemoryWritingRepository) Add(ignored context.Context, entry model.NewWritingEntry, userId int) (int, error) {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
 	id := repo.NewId()
-	rEntry := rModel.WritingEntry{Id: id, TemplateId: entry.TemplateID, UserId: entry.UserID}
+	rEntry := rModel.WritingEntry{Id: id, TemplateId: entry.TemplateID, UserId: userId}
 	repo.entries[id] = rEntry
 
 	return id, nil

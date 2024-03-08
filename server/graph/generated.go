@@ -3383,20 +3383,13 @@ func (ec *executionContext) unmarshalInputNewWritingEntry(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userId", "fields", "templateId"}
+	fieldsInOrder := [...]string{"fields", "templateId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
 		case "fields":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
 			data, err := ec.unmarshalNNewWritingEntryField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingEntryFieldᚄ(ctx, v)

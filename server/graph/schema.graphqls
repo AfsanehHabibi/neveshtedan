@@ -46,7 +46,6 @@ input RefreshTokenInput{
 }
 
 input NewWritingEntry {
-  userId: Int!
   fields: [NewWritingEntryField!]!
   templateId: Int!
 }

@@ -12,9 +12,9 @@ func TestWhenAddingMultipleEntriesCanRetrieveThemAllLater(t *testing.T) {
 		userId := 9485
 		templateId := 6543
 
-		id1, err := repo.Add(ctx, model.NewWritingEntry{UserID: userId, TemplateID: templateId})
+		id1, err := repo.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
 		assert.NoError(t, err)
-		id2, err := repo.Add(ctx, model.NewWritingEntry{UserID: userId, TemplateID: templateId})
+		id2, err := repo.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
 		assert.NoError(t, err)
 
 		assert.NotEqual(t, id1, id2)
@@ -30,7 +30,7 @@ func TestWhenAddingOneEntriesCanRetrieveItById(t *testing.T) {
 		userId := 9485
 		templateId := 6543
 
-		id, err := repo.Add(ctx, model.NewWritingEntry{UserID: userId, TemplateID: templateId})
+		id, err := repo.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
 		assert.NoError(t, err)
 
 		entry, err := repo.GetById(ctx, id)

@@ -16,7 +16,6 @@ type NewUser struct {
 }
 
 type NewWritingEntry struct {
-	UserID     int                     `json:"userId"`
 	Fields     []*NewWritingEntryField `json:"fields"`
 	TemplateID int                     `json:"templateId"`
 }
