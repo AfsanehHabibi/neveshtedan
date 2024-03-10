@@ -51,7 +51,6 @@ const NewWriting = () => {
 
     // Use template.fields to dynamically create fields in the input object
     let newEntry = {
-      userId: 456, // Replace with the actual user ID
       fields: template.fields.map((fieldName) => ({
         name: fieldName,
         value: formState[fieldName.toLowerCase()], // Assuming lowercase field names
@@ -59,8 +58,17 @@ const NewWriting = () => {
       templateId: template.id,
     };
 
+    // Retrieve the token from local storage
+    const token = localStorage.getItem('token');
+
+    console.log(token)
     createWritingEntry({
       variables: { input: newEntry },
+      context: {
+        headers: {
+          Authorization: token ? `${token}` : '',
+        },
+      },
     })
       .then((result) => console.log(result))
       .catch((err) => console.log(err));
