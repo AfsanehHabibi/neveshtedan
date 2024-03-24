@@ -1,69 +1,49 @@
 package repository_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWhenAddingOneFieldCanRetrieveItLater(t *testing.T) {
-	for _, repo := range wEFImp {
-		entryId := 123
-		value := "some value"
-		a := &value
-		err := repo.Add(ctx, entryId, model.NewWritingEntryField{Name: "name", Value: a})
-		assert.NoError(t, err)
-		fields, err := repo.GetAll(ctx, entryId)
-		assert.NoError(t, err)
-		assert.Len(t, fields, 1)
-		assert.Equal(t, "name", fields[0].Name)
-		assert.Equal(t, "some value", *fields[0].Value)
-		repo.Clear(ctx)
-	}
+func TestWhenAddingOneTextFieldCanRetrieveItLater(t *testing.T) {
+	defer writingEntryField.Clear(ctx)
+
+	entryId := 123
+	value := "some value"
+	a := &value
+	err := writingEntryField.Add(ctx, entryId, model.NewWritingEntryField{Name: "name", Text: a, Type: model.FieldTypeText})
+	assert.NoError(t, err)
+	fields, err := writingEntryField.GetAll(ctx, entryId)
+	assert.NoError(t, err)
+	assert.Len(t, fields, 1)
+	assert.Equal(t, "name", fields[0].Name)
+	assert.Equal(t, model.TextValue{Text: "some value"}, fields[0].Value.(model.TextValue))
 }
 
-func TestWhenAddingTwoFieldsSeparatelyRetrieveBothLater(t *testing.T) {
-	for _, repo := range wEFImp {
-		entryId := 123
-		value := "some value"
-		a := &value
+func TestWhenAddingMultipleFieldsFromEachTypeCanRetrieveThemLater(t *testing.T) {
+	defer writingEntryField.Clear(ctx)
 
-		err := repo.Add(ctx, entryId, model.NewWritingEntryField{Name: "name", Value: a})
-		assert.NoError(t, err)
-		err = repo.Add(ctx, entryId, model.NewWritingEntryField{Name: "name2", Value: a})
-		assert.NoError(t, err)
+	entryId := 123
+	fields := make([]model.NewWritingEntryField, 0, 4)
+	var text = "text value"
+	textField := model.NewWritingEntryField{Name: "text Field", Text: &text, Type: model.FieldTypeText}
+	fields = append(fields, textField)
+	var imgUrl = "image value"
+	imgField := model.NewWritingEntryField{Name: "image Field", URL: &imgUrl, Type: model.FieldTypeImage}
+	fields = append(fields, imgField)
+	var videoUrl = "video value"
+	videoField := model.NewWritingEntryField{Name: "video Field", URL: &videoUrl, Type: model.FieldTypeVideo}
+	fields = append(fields, videoField)
+	var number = 56.78
+	numberField := model.NewWritingEntryField{Name: "number Field", Number: &number, Type: model.FieldTypeNumber}
+	fields = append(fields, numberField)
 
-		fields, err := repo.GetAll(ctx, entryId)
-		assert.NoError(t, err)
-		assert.Len(t, fields, 2)
-		repo.Clear(ctx)
-	}
-}
+	err := writingEntryField.AddAll(ctx, entryId, fields)
 
-func TestWhenAddingMultipleFieldsCanRetrieveThemLater(t *testing.T) {
-	for _, repo := range wEFImp {
-		entryId := 123
-		fields := make([]model.NewWritingEntryField, 0, 3)
-		for i := 0; i < 3; i++ {
-			value := "value " + fmt.Sprintf("%d", i)
-			name := "name " + fmt.Sprintf("%d", i)
-			a := &value
-			field := model.NewWritingEntryField{Name: name, Value: a}
-			fields = append(fields, field)
-		}
-
-		err := repo.AddAll(ctx, entryId, fields)
-
-		assert.NoError(t, err)
-		oFields, err := repo.GetAll(ctx, entryId)
-		assert.NoError(t, err)
-		assert.Len(t, oFields, 3)
-		for i := 0; i < 3; i++ {
-			assert.Equal(t, fields[i].Name, oFields[i].Name)
-			assert.Equal(t, fields[i].Value, oFields[i].Value)
-		}
-		repo.Clear(ctx)
-	}
+	assert.NoError(t, err)
+	oFields, err := writingEntryField.GetAll(ctx, entryId)
+	assert.NoError(t, err)
+	assert.Len(t, oFields, 4)
 }

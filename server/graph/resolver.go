@@ -1,13 +1,13 @@
 package graph
 
-import "github.com/AfsanehHabibi/neveshtedan/pkg/repository"
+import (
+	"github.com/AfsanehHabibi/neveshtedan/pkg/logic"
+)
 
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	WFRepo   repository.WritingEntryFieldRepository
-	WERepo   repository.WritingEntryRepository
-	UserRepo repository.UserRepository
+	M logic.Neveshtedan
 }

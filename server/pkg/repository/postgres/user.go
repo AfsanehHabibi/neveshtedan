@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"log"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
 	"github.com/AfsanehHabibi/neveshtedan/pkg/repository"
+	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres/schema"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
@@ -15,6 +17,10 @@ type PostgresUserRepository struct {
 }
 
 func NewUserRepository(con *pgxpool.Pool) repository.UserRepository {
+	_, err := con.Exec(context.Background(), schema.UserTable)
+	if err != nil {
+		log.Fatalln("failed to create user table ", err)
+	}
 	return &PostgresUserRepository{con: con}
 }
 

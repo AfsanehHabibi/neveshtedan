@@ -8,36 +8,32 @@ import (
 )
 
 func TestWhenAddingMultipleEntriesCanRetrieveThemAllLater(t *testing.T) {
-	for _, repo := range wEImp {
-		userId := 9485
-		templateId := 6543
+	userId := 9485
+	templateId := 6543
 
-		id1, err := repo.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
-		assert.NoError(t, err)
-		id2, err := repo.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
-		assert.NoError(t, err)
+	id1, err := writingEntry.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
+	assert.NoError(t, err)
+	id2, err := writingEntry.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
+	assert.NoError(t, err)
 
-		assert.NotEqual(t, id1, id2)
-		entries, err := repo.GetAll(ctx)
-		assert.NoError(t, err)
-		assert.Len(t, entries, 2)
-		repo.Clear(ctx)
-	}
+	assert.NotEqual(t, id1, id2)
+	entries, err := writingEntry.GetAll(ctx)
+	assert.NoError(t, err)
+	assert.Len(t, entries, 2)
+	writingEntry.Clear(ctx)
 }
 
 func TestWhenAddingOneEntriesCanRetrieveItById(t *testing.T) {
-	for _, repo := range wEImp {
-		userId := 9485
-		templateId := 6543
+	userId := 9485
+	templateId := 6543
 
-		id, err := repo.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
-		assert.NoError(t, err)
+	id, err := writingEntry.Add(ctx, model.NewWritingEntry{TemplateID: templateId}, userId)
+	assert.NoError(t, err)
 
-		entry, err := repo.GetById(ctx, id)
-		assert.NoError(t, err)
-		assert.NotNil(t, entry)
-		assert.Equal(t, templateId, entry.TemplateID)
-		assert.Equal(t, userId, entry.UserID)
-		repo.Clear(ctx)
-	}
+	entry, err := writingEntry.GetById(ctx, id)
+	assert.NoError(t, err)
+	assert.NotNil(t, entry)
+	assert.Equal(t, templateId, entry.TemplateID)
+	assert.Equal(t, userId, entry.UserID)
+	writingEntry.Clear(ctx)
 }

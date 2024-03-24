@@ -9,8 +9,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/AfsanehHabibi/neveshtedan/graph"
-	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres"
 	"github.com/AfsanehHabibi/neveshtedan/internal/auth"
+	"github.com/AfsanehHabibi/neveshtedan/internal/module"
+	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
@@ -35,11 +36,10 @@ func main() {
 	}).Handler)
 
 	postgres.Setup()
-	wFRepo := postgres.NewPostgresWritingEntryFieldRepository(postgres.DB())
-	wERepo := postgres.NewPostgresWritingEntryRepository(postgres.DB())
 	userRepo := postgres.NewUserRepository(postgres.DB())
 	router.Use(auth.Middleware(userRepo))
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ WFRepo: wFRepo, WERepo: wERepo, UserRepo: userRepo}}))
+	module := module.NewNeveshtedanModule(postgres.DB())
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ M: module}}))
 
 	srv.AddTransport(&transport.Websocket{
 		Upgrader: websocket.Upgrader{

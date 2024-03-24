@@ -2,6 +2,22 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type FieldValue interface {
+	IsFieldValue()
+}
+
+type ImageValue struct {
+	URL string `json:"url"`
+}
+
+func (ImageValue) IsFieldValue() {}
+
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -21,9 +37,30 @@ type NewWritingEntry struct {
 }
 
 type NewWritingEntryField struct {
-	Name  string  `json:"name"`
-	Value *string `json:"value,omitempty"`
+	Name   string    `json:"name"`
+	Type   FieldType `json:"type"`
+	Text   *string   `json:"text,omitempty"`
+	Number *float64  `json:"number,omitempty"`
+	URL    *string   `json:"url,omitempty"`
 }
+
+type NewWritingTemplate struct {
+	Title       string                     `json:"title"`
+	Description string                     `json:"description"`
+	Fields      []*NewWritingTemplateField `json:"fields"`
+}
+
+type NewWritingTemplateField struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Type        FieldType `json:"type"`
+}
+
+type NumberValue struct {
+	Number float64 `json:"number"`
+}
+
+func (NumberValue) IsFieldValue() {}
 
 type Query struct {
 }
@@ -32,10 +69,22 @@ type RefreshTokenInput struct {
 	Token string `json:"token"`
 }
 
+type TextValue struct {
+	Text string `json:"text"`
+}
+
+func (TextValue) IsFieldValue() {}
+
 type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 }
+
+type VideoValue struct {
+	URL string `json:"url"`
+}
+
+func (VideoValue) IsFieldValue() {}
 
 type WritingEntry struct {
 	ID         int                  `json:"id"`
@@ -45,12 +94,65 @@ type WritingEntry struct {
 }
 
 type WritingEntryField struct {
-	Name  string  `json:"name"`
-	Value *string `json:"value,omitempty"`
+	Name  string     `json:"name"`
+	Value FieldValue `json:"value,omitempty"`
 }
 
 type WritingTemplate struct {
-	Title  string   `json:"title"`
-	ID     int      `json:"id"`
-	Fields []string `json:"fields"`
+	Title       string                  `json:"title"`
+	Description string                  `json:"description"`
+	ID          int                     `json:"id"`
+	UserID      int                     `json:"userId"`
+	Fields      []*WritingTemplateField `json:"fields"`
+}
+
+type WritingTemplateField struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Type        FieldType `json:"type"`
+}
+
+type FieldType string
+
+const (
+	FieldTypeText   FieldType = "TEXT"
+	FieldTypeNumber FieldType = "NUMBER"
+	FieldTypeImage  FieldType = "IMAGE"
+	FieldTypeVideo  FieldType = "VIDEO"
+)
+
+var AllFieldType = []FieldType{
+	FieldTypeText,
+	FieldTypeNumber,
+	FieldTypeImage,
+	FieldTypeVideo,
+}
+
+func (e FieldType) IsValid() bool {
+	switch e {
+	case FieldTypeText, FieldTypeNumber, FieldTypeImage, FieldTypeVideo:
+		return true
+	}
+	return false
+}
+
+func (e FieldType) String() string {
+	return string(e)
+}
+
+func (e *FieldType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FieldType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FieldType", str)
+	}
+	return nil
+}
+
+func (e FieldType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

@@ -8,3 +8,11 @@ func RemoveNilElements[T any](arr []*T) (result []T) {
 	}
 	return
 }
+
+func ConvertToPointerArray[T any](arr []T) (result []*T) {
+	for _, v := range arr {
+        temp := v  // Create a new variable to capture the value of v
+        result = append(result, &temp)
+    }
+	return
+}

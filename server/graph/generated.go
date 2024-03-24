@@ -47,11 +47,20 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ImageValue struct {
+		URL func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CreateUser         func(childComplexity int, input model.NewUser) int
-		CreateWritingEntry func(childComplexity int, input model.NewWritingEntry) int
-		Login              func(childComplexity int, input model.Login) int
-		RefreshToken       func(childComplexity int, input model.RefreshTokenInput) int
+		CreateUser            func(childComplexity int, input model.NewUser) int
+		CreateWritingEntry    func(childComplexity int, input model.NewWritingEntry) int
+		CreateWritingTemplate func(childComplexity int, input model.NewWritingTemplate) int
+		Login                 func(childComplexity int, input model.Login) int
+		RefreshToken          func(childComplexity int, input model.RefreshTokenInput) int
+	}
+
+	NumberValue struct {
+		Number func(childComplexity int) int
 	}
 
 	Query struct {
@@ -60,9 +69,17 @@ type ComplexityRoot struct {
 		WritingTemplate func(childComplexity int, id int) int
 	}
 
+	TextValue struct {
+		Text func(childComplexity int) int
+	}
+
 	User struct {
 		ID       func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	VideoValue struct {
+		URL func(childComplexity int) int
 	}
 
 	WritingEntry struct {
@@ -78,14 +95,23 @@ type ComplexityRoot struct {
 	}
 
 	WritingTemplate struct {
-		Fields func(childComplexity int) int
-		ID     func(childComplexity int) int
-		Title  func(childComplexity int) int
+		Description func(childComplexity int) int
+		Fields      func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UserID      func(childComplexity int) int
+	}
+
+	WritingTemplateField struct {
+		Description func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Type        func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
 	CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error)
+	CreateWritingTemplate(ctx context.Context, input model.NewWritingTemplate) (int, error)
 	CreateUser(ctx context.Context, input model.NewUser) (string, error)
 	Login(ctx context.Context, input model.Login) (string, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
@@ -115,6 +141,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "ImageValue.url":
+		if e.complexity.ImageValue.URL == nil {
+			break
+		}
+
+		return e.complexity.ImageValue.URL(childComplexity), true
+
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
 			break
@@ -139,6 +172,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateWritingEntry(childComplexity, args["input"].(model.NewWritingEntry)), true
 
+	case "Mutation.createWritingTemplate":
+		if e.complexity.Mutation.CreateWritingTemplate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createWritingTemplate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateWritingTemplate(childComplexity, args["input"].(model.NewWritingTemplate)), true
+
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
 			break
@@ -162,6 +207,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
+
+	case "NumberValue.number":
+		if e.complexity.NumberValue.Number == nil {
+			break
+		}
+
+		return e.complexity.NumberValue.Number(childComplexity), true
 
 	case "Query.entries":
 		if e.complexity.Query.Entries == nil {
@@ -189,6 +241,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.WritingTemplate(childComplexity, args["id"].(int)), true
 
+	case "TextValue.text":
+		if e.complexity.TextValue.Text == nil {
+			break
+		}
+
+		return e.complexity.TextValue.Text(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -202,6 +261,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Username(childComplexity), true
+
+	case "VideoValue.url":
+		if e.complexity.VideoValue.URL == nil {
+			break
+		}
+
+		return e.complexity.VideoValue.URL(childComplexity), true
 
 	case "WritingEntry.fields":
 		if e.complexity.WritingEntry.Fields == nil {
@@ -245,6 +311,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WritingEntryField.Value(childComplexity), true
 
+	case "WritingTemplate.description":
+		if e.complexity.WritingTemplate.Description == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplate.Description(childComplexity), true
+
 	case "WritingTemplate.fields":
 		if e.complexity.WritingTemplate.Fields == nil {
 			break
@@ -266,6 +339,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WritingTemplate.Title(childComplexity), true
 
+	case "WritingTemplate.userId":
+		if e.complexity.WritingTemplate.UserID == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplate.UserID(childComplexity), true
+
+	case "WritingTemplateField.description":
+		if e.complexity.WritingTemplateField.Description == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplateField.Description(childComplexity), true
+
+	case "WritingTemplateField.name":
+		if e.complexity.WritingTemplateField.Name == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplateField.Name(childComplexity), true
+
+	case "WritingTemplateField.type":
+		if e.complexity.WritingTemplateField.Type == nil {
+			break
+		}
+
+		return e.complexity.WritingTemplateField.Type(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -278,6 +379,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNewUser,
 		ec.unmarshalInputNewWritingEntry,
 		ec.unmarshalInputNewWritingEntryField,
+		ec.unmarshalInputNewWritingTemplate,
+		ec.unmarshalInputNewWritingTemplateField,
 		ec.unmarshalInputRefreshTokenInput,
 	)
 	first := true
@@ -425,6 +528,21 @@ func (ec *executionContext) field_Mutation_createWritingEntry_args(ctx context.C
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createWritingTemplate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewWritingTemplate
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewWritingTemplate2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingTemplate(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -523,6 +641,50 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _ImageValue_url(ctx context.Context, field graphql.CollectedField, obj *model.ImageValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageValue_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageValue_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createWritingEntry(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createWritingEntry(ctx, field)
 	if err != nil {
@@ -582,6 +744,61 @@ func (ec *executionContext) fieldContext_Mutation_createWritingEntry(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createWritingEntry_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createWritingTemplate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createWritingTemplate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateWritingTemplate(rctx, fc.Args["input"].(model.NewWritingTemplate))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createWritingTemplate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createWritingTemplate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -753,6 +970,50 @@ func (ec *executionContext) fieldContext_Mutation_refreshToken(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _NumberValue_number(ctx context.Context, field graphql.CollectedField, obj *model.NumberValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NumberValue_number(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Number, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NumberValue_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NumberValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_entries(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_entries(ctx, field)
 	if err != nil {
@@ -848,8 +1109,12 @@ func (ec *executionContext) fieldContext_Query_templates(ctx context.Context, fi
 			switch field.Name {
 			case "title":
 				return ec.fieldContext_WritingTemplate_title(ctx, field)
+			case "description":
+				return ec.fieldContext_WritingTemplate_description(ctx, field)
 			case "id":
 				return ec.fieldContext_WritingTemplate_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_WritingTemplate_userId(ctx, field)
 			case "fields":
 				return ec.fieldContext_WritingTemplate_fields(ctx, field)
 			}
@@ -897,8 +1162,12 @@ func (ec *executionContext) fieldContext_Query_writingTemplate(ctx context.Conte
 			switch field.Name {
 			case "title":
 				return ec.fieldContext_WritingTemplate_title(ctx, field)
+			case "description":
+				return ec.fieldContext_WritingTemplate_description(ctx, field)
 			case "id":
 				return ec.fieldContext_WritingTemplate_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_WritingTemplate_userId(ctx, field)
 			case "fields":
 				return ec.fieldContext_WritingTemplate_fields(ctx, field)
 			}
@@ -1048,6 +1317,50 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _TextValue_text(ctx context.Context, field graphql.CollectedField, obj *model.TextValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TextValue_text(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TextValue_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TextValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
@@ -1126,6 +1439,50 @@ func (ec *executionContext) _User_username(ctx context.Context, field graphql.Co
 func (ec *executionContext) fieldContext_User_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VideoValue_url(ctx context.Context, field graphql.CollectedField, obj *model.VideoValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VideoValue_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VideoValue_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VideoValue",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1385,9 +1742,9 @@ func (ec *executionContext) _WritingEntryField_value(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(model.FieldValue)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOFieldValue2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WritingEntryField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1397,7 +1754,7 @@ func (ec *executionContext) fieldContext_WritingEntryField_value(ctx context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type FieldValue does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1435,6 +1792,50 @@ func (ec *executionContext) _WritingTemplate_title(ctx context.Context, field gr
 }
 
 func (ec *executionContext) fieldContext_WritingTemplate_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplate_description(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplate_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplate_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WritingTemplate",
 		Field:      field,
@@ -1491,6 +1892,50 @@ func (ec *executionContext) fieldContext_WritingTemplate_id(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _WritingTemplate_userId(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplate_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplate_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WritingTemplate_fields(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplate) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WritingTemplate_fields(ctx, field)
 	if err != nil {
@@ -1517,9 +1962,9 @@ func (ec *executionContext) _WritingTemplate_fields(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.([]*model.WritingTemplateField)
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalNWritingTemplateField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplateFieldᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WritingTemplate_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1529,7 +1974,147 @@ func (ec *executionContext) fieldContext_WritingTemplate_fields(ctx context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_WritingTemplateField_name(ctx, field)
+			case "description":
+				return ec.fieldContext_WritingTemplateField_description(ctx, field)
+			case "type":
+				return ec.fieldContext_WritingTemplateField_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WritingTemplateField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplateField_name(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplateField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplateField_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplateField_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplateField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplateField_description(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplateField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplateField_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplateField_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplateField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WritingTemplateField_type(ctx context.Context, field graphql.CollectedField, obj *model.WritingTemplateField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingTemplateField_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.FieldType)
+	fc.Result = res
+	return ec.marshalNFieldType2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WritingTemplateField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WritingTemplateField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type FieldType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3417,7 +4002,7 @@ func (ec *executionContext) unmarshalInputNewWritingEntryField(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "value"}
+	fieldsInOrder := [...]string{"name", "type", "text", "number", "url"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3431,13 +4016,116 @@ func (ec *executionContext) unmarshalInputNewWritingEntryField(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
-		case "value":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNFieldType2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "text":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Value = data
+			it.Text = data
+		case "number":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Number = data
+		case "url":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewWritingTemplate(ctx context.Context, obj interface{}) (model.NewWritingTemplate, error) {
+	var it model.NewWritingTemplate
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"title", "description", "fields"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "fields":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
+			data, err := ec.unmarshalNNewWritingTemplateField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingTemplateFieldᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fields = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewWritingTemplateField(ctx context.Context, obj interface{}) (model.NewWritingTemplateField, error) {
+	var it model.NewWritingTemplateField
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "description", "type"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNFieldType2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
 		}
 	}
 
@@ -3475,9 +4163,85 @@ func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context,
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _FieldValue(ctx context.Context, sel ast.SelectionSet, obj model.FieldValue) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.TextValue:
+		return ec._TextValue(ctx, sel, &obj)
+	case *model.TextValue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TextValue(ctx, sel, obj)
+	case model.NumberValue:
+		return ec._NumberValue(ctx, sel, &obj)
+	case *model.NumberValue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._NumberValue(ctx, sel, obj)
+	case model.ImageValue:
+		return ec._ImageValue(ctx, sel, &obj)
+	case *model.ImageValue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ImageValue(ctx, sel, obj)
+	case model.VideoValue:
+		return ec._VideoValue(ctx, sel, &obj)
+	case *model.VideoValue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._VideoValue(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var imageValueImplementors = []string{"ImageValue", "FieldValue"}
+
+func (ec *executionContext) _ImageValue(ctx context.Context, sel ast.SelectionSet, obj *model.ImageValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, imageValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImageValue")
+		case "url":
+			out.Values[i] = ec._ImageValue_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -3505,6 +4269,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createWritingTemplate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createWritingTemplate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
@@ -3523,6 +4294,45 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_refreshToken(ctx, field)
 			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var numberValueImplementors = []string{"NumberValue", "FieldValue"}
+
+func (ec *executionContext) _NumberValue(ctx context.Context, sel ast.SelectionSet, obj *model.NumberValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, numberValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NumberValue")
+		case "number":
+			out.Values[i] = ec._NumberValue_number(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3662,6 +4472,45 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var textValueImplementors = []string{"TextValue", "FieldValue"}
+
+func (ec *executionContext) _TextValue(ctx context.Context, sel ast.SelectionSet, obj *model.TextValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, textValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TextValue")
+		case "text":
+			out.Values[i] = ec._TextValue_text(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
@@ -3680,6 +4529,45 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "username":
 			out.Values[i] = ec._User_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var videoValueImplementors = []string{"VideoValue", "FieldValue"}
+
+func (ec *executionContext) _VideoValue(ctx context.Context, sel ast.SelectionSet, obj *model.VideoValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, videoValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VideoValue")
+		case "url":
+			out.Values[i] = ec._VideoValue_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3817,13 +4705,72 @@ func (ec *executionContext) _WritingTemplate(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "description":
+			out.Values[i] = ec._WritingTemplate_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "id":
 			out.Values[i] = ec._WritingTemplate_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "userId":
+			out.Values[i] = ec._WritingTemplate_userId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "fields":
 			out.Values[i] = ec._WritingTemplate_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var writingTemplateFieldImplementors = []string{"WritingTemplateField"}
+
+func (ec *executionContext) _WritingTemplateField(ctx context.Context, sel ast.SelectionSet, obj *model.WritingTemplateField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, writingTemplateFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WritingTemplateField")
+		case "name":
+			out.Values[i] = ec._WritingTemplateField_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._WritingTemplateField_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._WritingTemplateField_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4191,6 +5138,31 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNFieldType2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldType(ctx context.Context, v interface{}) (model.FieldType, error) {
+	var res model.FieldType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFieldType2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldType(ctx context.Context, sel ast.SelectionSet, v model.FieldType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4243,6 +5215,33 @@ func (ec *executionContext) unmarshalNNewWritingEntryField2ᚖgithubᚗcomᚋAfs
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNNewWritingTemplate2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingTemplate(ctx context.Context, v interface{}) (model.NewWritingTemplate, error) {
+	res, err := ec.unmarshalInputNewWritingTemplate(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewWritingTemplateField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingTemplateFieldᚄ(ctx context.Context, v interface{}) ([]*model.NewWritingTemplateField, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.NewWritingTemplateField, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNNewWritingTemplateField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingTemplateField(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNNewWritingTemplateField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐNewWritingTemplateField(ctx context.Context, v interface{}) (*model.NewWritingTemplateField, error) {
+	res, err := ec.unmarshalInputNewWritingTemplateField(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐRefreshTokenInput(ctx context.Context, v interface{}) (model.RefreshTokenInput, error) {
 	res, err := ec.unmarshalInputRefreshTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4261,38 +5260,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNWritingEntry2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingEntry(ctx context.Context, sel ast.SelectionSet, v model.WritingEntry) graphql.Marshaler {
@@ -4459,6 +5426,60 @@ func (ec *executionContext) marshalNWritingTemplate2ᚖgithubᚗcomᚋAfsanehHab
 		return graphql.Null
 	}
 	return ec._WritingTemplate(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWritingTemplateField2ᚕᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplateFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WritingTemplateField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWritingTemplateField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplateField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWritingTemplateField2ᚖgithubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐWritingTemplateField(ctx context.Context, sel ast.SelectionSet, v *model.WritingTemplateField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WritingTemplateField(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4738,6 +5759,29 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOFieldValue2githubᚗcomᚋAfsanehHabibiᚋneveshtedanᚋgraphᚋmodelᚐFieldValue(ctx context.Context, sel ast.SelectionSet, v model.FieldValue) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._FieldValue(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

@@ -1,11 +1,15 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 type WritingTemplate {
   title: String!
+  description: String!
   id: Int!
-  fields: [String!]!
+  userId: Int!
+  fields: [WritingTemplateField!]!
+}
+
+type WritingTemplateField {
+  name: String!
+  description: String!
+  type: FieldType!
 }
 
 type WritingEntry {
@@ -17,7 +21,25 @@ type WritingEntry {
 
 type WritingEntryField {
   name: String!
-  value: String
+  value: FieldValue
+}
+
+union FieldValue = TextValue | NumberValue | ImageValue | VideoValue
+
+type TextValue {
+  text: String!
+}
+
+type NumberValue {
+  number: Float!
+}
+
+type ImageValue {
+  url: String!
+}
+
+type VideoValue {
+  url: String!
 }
 
 type User {
@@ -41,8 +63,20 @@ input Login {
   password: String!
 }
 
-input RefreshTokenInput{
+input RefreshTokenInput {
   token: String!
+}
+
+input NewWritingTemplate {
+  title: String!
+  description: String!
+  fields: [NewWritingTemplateField!]!
+}
+
+input NewWritingTemplateField {
+  name: String!
+  description: String!
+  type: FieldType!
 }
 
 input NewWritingEntry {
@@ -52,11 +86,22 @@ input NewWritingEntry {
 
 input NewWritingEntryField {
   name: String!
-  value: String
+  type: FieldType!
+  text: String
+  number: Float
+  url: String
+}
+
+enum FieldType {
+  TEXT
+  NUMBER
+  IMAGE
+  VIDEO
 }
 
 type Mutation {
   createWritingEntry(input: NewWritingEntry!): WritingEntry!
+  createWritingTemplate(input: NewWritingTemplate!): Int!
   createUser(input: NewUser!): String!
   login(input: Login!): String!
   refreshToken(input: RefreshTokenInput!): String!

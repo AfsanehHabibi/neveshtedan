@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"log"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
 	"github.com/AfsanehHabibi/neveshtedan/pkg/repository"
+	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres/schema"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -14,6 +16,10 @@ type PostgresWritingEntryRepository struct {
 }
 
 func NewPostgresWritingEntryRepository(con *pgxpool.Pool) repository.WritingEntryRepository {
+	_, err := con.Exec(context.Background(), schema.WritingEntryTable)
+	if err != nil {
+		log.Fatalln("failed to create entry table ", err)
+	}
 	return &PostgresWritingEntryRepository{con: con}
 }
 

@@ -8,26 +8,26 @@ import (
 	"os/exec"
 
 	"github.com/AfsanehHabibi/neveshtedan/pkg/repository"
-	inmemory "github.com/AfsanehHabibi/neveshtedan/pkg/repository/in_memory"
 	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres"
-	"github.com/AfsanehHabibi/neveshtedan/pkg/repository/postgres/schema"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (
-	ctx     = context.Background()
-	wEImp   []repository.WritingEntryRepository
-	wEFImp  []repository.WritingEntryFieldRepository
-	userRep repository.UserRepository
+	ctx               = context.Background()
+	writingEntry      repository.WritingEntryRepository
+	writingEntryField repository.WritingEntryFieldRepository
+	userRep           repository.UserRepository
+	templateRep       repository.WritingTemplateRepository
+	templateFieldRep  repository.WritingTemplateFieldRepository
 )
 
 func TestMain(m *testing.M) {
 	con := preparePostgresForTest()
-	pWE := postgres.NewPostgresWritingEntryRepository(con)
-	pWEF := postgres.NewPostgresWritingEntryFieldRepository(con)
+	writingEntry = postgres.NewPostgresWritingEntryRepository(con)
+	writingEntryField = postgres.NewPostgresWritingEntryFieldRepository(con)
 	userRep = postgres.NewUserRepository(con)
-	wEFImp = append(wEFImp, inmemory.NewInMemoryWritingEntryFieldRepository(), pWEF)
-	wEImp = append(wEImp, inmemory.NewInMemoryWritingEntryRepository(), pWE)
+	templateRep = postgres.NewPostgresWritingTemplateRepository(con)
+	templateFieldRep = postgres.NewPostgresWritingTemplateFieldRepository(con)
 	m.Run()
 }
 
@@ -59,17 +59,9 @@ func preparePostgresForTest() *pgxpool.Pool {
 	if err != nil {
 		log.Println("eror", err.Error())
 	}
-	_, err = postgres.DB().Exec(context.Background(), schema.WritingEntryTable)
+	_, err = postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS template_fields;")
 	if err != nil {
-		log.Println("erffor", err.Error())
-	}
-	_, err = postgres.DB().Exec(context.Background(), schema.WritingEntryFieldTable)
-	if err != nil {
-		log.Println("erffor", err.Error())
-	}
-	_, err = postgres.DB().Exec(context.Background(), schema.UserTable)
-	if err != nil {
-		log.Println("erffor", err.Error())
+		log.Println("eror", err.Error())
 	}
 	return postgres.DB()
 }

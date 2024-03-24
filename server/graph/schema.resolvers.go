@@ -6,127 +6,44 @@ package graph
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/AfsanehHabibi/neveshtedan/graph/model"
-	"github.com/AfsanehHabibi/neveshtedan/internal/auth"
-	"github.com/AfsanehHabibi/neveshtedan/pkg/jwt"
-	"github.com/AfsanehHabibi/neveshtedan/pkg/util"
 )
 
-// CreateWritingEntry is the resolver for the createWritingEntry field.
 func (r *mutationResolver) CreateWritingEntry(ctx context.Context, input model.NewWritingEntry) (*model.WritingEntry, error) {
-	userId := auth.GetUseFromContext(ctx)
-	if userId == nil {
-		return nil, errors.New("access denied")
-	}
-
-	id, err := r.Resolver.WERepo.Add(context.Background(), input, *userId)
-	if err != nil {
-		return nil, err
-	}
-
-	fields := util.RemoveNilElements(input.Fields)
-	err = r.Resolver.WFRepo.AddAll(context.Background(), id, fields)
-	if err != nil {
-		return nil, err
-	}
-	oFields := make([]*model.WritingEntryField, 0, len(fields))
-	for _, v := range fields {
-		oFields = append(oFields, model.ConvertNewToWritingEntryField(v))
-	}
-	return &model.WritingEntry{ID: id, UserID: *userId, TemplateID: input.TemplateID, Fields: oFields}, nil
+	return r.M.CreateWritingEntry(ctx, input)
 }
 
-// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateWritingTemplate(ctx context.Context, input model.NewWritingTemplate) (int, error) {
+	return r.M.CreateWritingTemplate(ctx, input)
+}
+
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
-	id, err := r.UserRepo.Add(ctx, input)
-	if err != nil {
-		return "", err
-	}
-	token, err := jwt.GenerateToken(id)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	return r.M.CreateUser(ctx, input)
 }
 
-// Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
-	id, err := r.UserRepo.GetIdIfExists(ctx, input.Username, input.Password)
-	if err != nil {
-		return "", err
-	}
-	if id == nil {
-		return "", errors.New("wrong password or username")
-	}
-	token, err := jwt.GenerateToken(*id)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	return r.M.Login(ctx, input)
 }
 
-// RefreshToken is the resolver for the refreshToken field.
 func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
-	id, err := jwt.ParseToken(input.Token)
-	if err != nil {
-		return "", errors.New("access denied")
-	}
-	token, err := jwt.GenerateToken(id)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	return r.M.RefreshToken(ctx, input)
 }
 
-// Entries is the resolver for the entries field.
 func (r *queryResolver) Entries(ctx context.Context) ([]*model.WritingEntry, error) {
-	panic(fmt.Errorf("not implemented: Entries - entries"))
+	return r.M.Entries(ctx)
 }
 
-// Templates is the resolver for the templates field.
 func (r *queryResolver) Templates(ctx context.Context) ([]*model.WritingTemplate, error) {
-	var templates []*model.WritingTemplate
-	template1 := model.WritingTemplate{
-		Title:  "Basic",
-		ID:     1234,
-		Fields: []string{"name", "favorite food", "reason"},
-	}
-	templates = append(templates, &template1)
-	template2 := model.WritingTemplate{
-		Title:  "Odd",
-		ID:     125,
-		Fields: []string{"name", "penname", "pen story"},
-	}
-	templates = append(templates, &template2)
-	return templates, nil
+	return r.M.Templates(ctx)
 }
 
-// WritingTemplate is the resolver for the writingTemplate field.
 func (r *queryResolver) WritingTemplate(ctx context.Context, id int) (*model.WritingTemplate, error) {
-	if id == 1234 {
-		return &model.WritingTemplate{
-			Title:  "Basic",
-			ID:     1234,
-			Fields: []string{"name", "favorite food", "reason"},
-		}, nil
-	}
-	if id == 125 {
-		return &model.WritingTemplate{
-			Title:  "Odd",
-			ID:     125,
-			Fields: []string{"name", "penname", "pen story"},
-		}, nil
-	}
-	return nil, nil
+	return r.M.Template(ctx, id)
 }
 
-// Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
