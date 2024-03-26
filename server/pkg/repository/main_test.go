@@ -47,21 +47,17 @@ func preparePostgresForTest() *pgxpool.Pool {
 	if err != nil {
 		log.Fatalln("Connecting to DB failed! ", err.Error())
 	}
-	_, err = postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS writings;")
-	if err != nil {
-		log.Println("eror", err.Error())
-	}
-	_, err = postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS writing_fields;")
-	if err != nil {
-		log.Println("eror", err.Error())
-	}
-	_, err = postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS users;")
-	if err != nil {
-		log.Println("eror", err.Error())
-	}
-	_, err = postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS template_fields;")
-	if err != nil {
-		log.Println("eror", err.Error())
-	}
+	dropTables([]string{"writings", "writing_text_fields", "writing_number_fields", "writing_image_fields",
+		"writing_video_fields", "users", "template_fields"})
+
 	return postgres.DB()
+}
+
+func dropTables(names []string) {
+	for _, name := range names {
+		_, err := postgres.DB().Exec(context.Background(), "DROP TABLE IF EXISTS "+name+";")
+		if err != nil {
+			log.Fatalln("error in dropping table ", name, err.Error())
+		}
+	}
 }
