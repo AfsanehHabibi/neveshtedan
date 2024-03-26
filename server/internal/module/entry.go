@@ -42,8 +42,10 @@ func (m NeveshtedanModule) Entries(ctx context.Context) ([]*model.WritingEntry, 
 	var results = make([]*model.WritingEntry, 0, len(entries))
 	for _, entry := range entries {
 		result, err := m.Entry(ctx, entry.ID)
-		if err != nil {
+		if err == nil {
 			results = append(results, result)
+		} else {
+			return nil, err
 		}
 	}
 

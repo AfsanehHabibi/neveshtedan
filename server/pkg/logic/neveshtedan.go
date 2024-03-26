@@ -14,6 +14,7 @@ type Neveshtedan interface {
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
 
 	Entries(ctx context.Context) ([]*model.WritingEntry, error)
+	Entry(ctx context.Context, id int) (*model.WritingEntry, error)
 	Templates(ctx context.Context) ([]*model.WritingTemplate, error)
 	Template(ctx context.Context, id int) (*model.WritingTemplate, error)
 }
