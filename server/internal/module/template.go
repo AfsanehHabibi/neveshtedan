@@ -39,8 +39,10 @@ func (m NeveshtedanModule) Templates(ctx context.Context) ([]*model.WritingTempl
 	var results = make([]*model.WritingTemplate, 0, len(templates))
 	for _, template := range templates {
 		result, err := m.Template(ctx, template.ID)
-		if err != nil {
+		if err == nil {
 			results = append(results, result)
+		} else {
+			return nil, err
 		}
 	}
 

@@ -8,12 +8,16 @@ import (
 )
 
 func TestWhenNewUserCreatesItReceivesToken(t *testing.T) {
+	defer clear()
+
 	token, err := module.CreateUser(ctx, model.NewUser{Username: "Ahmad", Password: "03jf9efk"})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token)
 }
 
 func TestWhenExistentUserLogsInItReceivesToken(t *testing.T) {
+	defer clear()
+
 	username := "Ahmad"
 	password := "03jf9efk"
 	token, err := module.CreateUser(ctx, model.NewUser{Username: username, Password: password})
@@ -26,6 +30,8 @@ func TestWhenExistentUserLogsInItReceivesToken(t *testing.T) {
 }
 
 func TestWhenWrongPasswordEnteredLoginReturnsError(t *testing.T) {
+	defer clear()
+
 	username := "Ahmad"
 	password := "03jf9efk"
 	token, err := module.CreateUser(ctx, model.NewUser{Username: username, Password: password})

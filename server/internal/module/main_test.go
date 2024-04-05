@@ -29,3 +29,7 @@ func logsBasicUserInAndFillContext() context.Context {
 	}
 	return auth.AddUserToContext(ctx, 0)
 }
+
+func clear() {
+	test.EmptyTables()
+}

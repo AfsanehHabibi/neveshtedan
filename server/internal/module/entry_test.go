@@ -8,6 +8,8 @@ import (
 )
 
 func TestAfterCreatingEntryCanRetrieveIt(t *testing.T) {
+	defer clear()
+
 	ctx = logsBasicUserInAndFillContext()
 	text := "i filled this field"
 	field := model.NewWritingEntryField{Name: "basic", Type: model.FieldTypeText, Text: &text}
@@ -22,6 +24,8 @@ func TestAfterCreatingEntryCanRetrieveIt(t *testing.T) {
 }
 
 func TestAfterCreatingMultipleEntriesCanRetrieveThemAll(t *testing.T) {
+	defer clear()
+
 	ctx = logsBasicUserInAndFillContext()
 	text := "i filled this field"
 	field := model.NewWritingEntryField{Name: "basic", Type: model.FieldTypeText, Text: &text}
